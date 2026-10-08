@@ -1,0 +1,39 @@
+{
+    "drivers": [
+        {
+            "id": "michael-schumacher",
+            "name": "Michael Schumacher",
+            "country": "Germany",
+            "birthDate": "1969-01-03",
+            "worldChampionships": 7
+        },
+        {
+            "id": "ayrton-senna",
+            "name": "Ayrton Senna",
+            "country": "Brazil",
+            "birthDate": "1960-03-21",
+            "worldChampionships": 3
+        },
+        {
+            "id": "lewis-hamilton",
+            "name": "Lewis Hamilton",
+            "country": "United Kingdom",
+            "birthDate": "1985-01-07",
+            "worldChampionships": 7
+        },
+        {
+            "id": "max-verstappen",
+            "name": "Max Verstappen",
+            "country": "Netherlands",
+            "birthDate": "1997-09-30",
+            "worldChampionships": 3
+        },
+        {
+            "id": "charles-leclerc",
+            "name": "Charles Leclerc",
+            "country": "Monaco",
+            "birthDate": "1997-10-16",
+            "worldChampionships": 0
+        }
+    ]
+}
