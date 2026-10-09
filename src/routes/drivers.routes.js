@@ -9,14 +9,27 @@ router.get("/", async (req, res) => {
         const country = req.query.country;
         const worldChampionships = req.query.worldChampionships;
 
+        // converte param para number se informado: evitando -1 ou "abc"
+        let worldChampionshipsNumber;
+        if (worldChampionships !== undefined) {
+            worldChampionshipsNumber = Number(worldChampionships);
+
+            // validação se é inteiro e maior que zero
+            if (!Number.isInteger(worldChampionshipsNumber) || worldChampionshipsNumber < 0) {
+                return res.status(400).json({
+                    message: "worldChampionships deve ser um inteiro maior ou igual a zero"
+                });
+            }
+        }
+
         // filtros de país e títulos do query params
         const filteredDrivers = drivers.filter((driver) => {
             const matchesCountry =
                 !country || driver.country === country;
 
             const matchesWorldChampionships =
-                !worldChampionships ||
-                driver.worldChampionships === Number(worldChampionships);
+                worldChampionships === undefined || 
+                driver.worldChampionships === worldChampionshipsNumber;
 
             return matchesCountry && matchesWorldChampionships;
         });
