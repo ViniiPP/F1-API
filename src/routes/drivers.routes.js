@@ -1,42 +1,41 @@
 const express = require("express")
 const router = express.Router();
-const fs = require("fs");
+const { getAllDrivers } = require("../repositories/drivers.repository");
 
 // listar todos os pilotos + filtro de país com query param
-router.get("/", (req, res) => {
-    fs.readFile("./src/data/drivers.json", "utf8", (err, data) => {
-        if (err) {
-            res.status(500).json({ message: "Erro ao ler arquivo" });
-            return;
-        }
-
-        // Transforma o string data em objeto JS
-        const drivers = JSON.parse(data).drivers;
+router.get("/", async (req, res) => {
+    try {
+        const drivers = await getAllDrivers();
         const country = req.query.country;
+        const worldChampionships = req.query.worldChampionships;
 
-        if (!country) {
-            res.json(drivers);
-            return;
-        }
+        // filtros de país e títulos do query params
+        const filteredDrivers = drivers.filter((driver) => {
+            const matchesCountry =
+                !country || driver.country === country;
 
-        const filteredDrivers = drivers.filter(
-            (driver) => driver.country === country
-        );
+            const matchesWorldChampionships =
+                !worldChampionships ||
+                driver.worldChampionships === Number(worldChampionships);
+
+            return matchesCountry && matchesWorldChampionships;
+        });
 
         res.json(filteredDrivers);
-    });
+
+    } catch (err) {
+        res.status(500).json({
+            message: "Erro ao buscar pilotos - API"
+        });
+    }
 });
 
 // listar piloto por ID
-router.get("/:id", (req, res) => {
-    fs.readFile("./src/data/drivers.json", "utf8", (err, data) => {
-        if(err){
-            res.status(500).json({ message: "Erro ao ler arquivo"})
-            return;
-        }
-        
-        // Transforma o string data em objeto JS
-        const drivers = JSON.parse(data).drivers;
+router.get("/:id", async (req, res) => {
+    try {
+        const drivers = await getAllDrivers();
+
+        // busca o piloto pelo ID informado na URL
         const id = req.params.id;
         const driverFound = drivers.find((driver) => driver.id === id);
         
@@ -46,7 +45,11 @@ router.get("/:id", (req, res) => {
         }
 
         res.json(driverFound);
-    });
+    } catch (err){
+        res.status(500).json({
+            message: "Erro ao buscar pilotos - API"
+        })
+    }
 });
 
 module.exports = router;
