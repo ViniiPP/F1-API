@@ -2,14 +2,15 @@ const express = require("express")
 const router = express.Router();
 const { getAllDrivers } = require("../repositories/drivers.repository");
 
-// listar todos os pilotos + filtro de país com query param
+// listar todos os pilotos + filtro de país e WorldChampionscom com query param
 router.get("/", async (req, res) => {
     try {
         const drivers = await getAllDrivers();
         const country = req.query.country;
         const worldChampionships = req.query.worldChampionships;
 
-        // converte param de champios para number se informado
+        // filtros
+        // converte param de champions para number se informado
         let worldChampionshipsNumber;
         if (worldChampionships !== undefined) {
             worldChampionshipsNumber = Number(worldChampionships);
@@ -69,7 +70,7 @@ router.get("/:id", async (req, res) => {
             res.status(404).json({ message: "Piloto não encontrado"});
             return;
         }
-        
+
         res.json(driverFound);
 
     } catch (err){
