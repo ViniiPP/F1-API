@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const driversRoutes = require('./routes/drivers.routes');
+const teamsRoutes = require("./routes/teams.routes");
 
 app.get('/', (req, res) => {
     res.send("Olá F1-API")
@@ -17,5 +18,7 @@ app.get('/api/v1', (req, res) =>{
 });
 
 app.use("/api/v1/drivers", driversRoutes);
+
+app.use("/api/v1/teams", teamsRoutes);
 
 module.exports = app
