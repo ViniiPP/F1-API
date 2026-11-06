@@ -1,11 +1,12 @@
 const fs = require("fs").promises;
-const path = require("path");
-
-const teamsFilePath = path.join(__dirname, "../data/teams.json");
 
 async function getAllTeams() {
-    const data = await fs.readFile(teamsFilePath, "utf-8");
-    return JSON.parse(data);
-}
+    try {
+        const data = await fs.readFile("./src/data/teams.json", "utf8");
+        return JSON.parse(data).teams;
 
+    } catch (err) {
+        throw new Error("Erro ao ler arquivo: " + err.message);
+    }
+}
 module.exports = { getAllTeams }

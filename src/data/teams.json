@@ -1,20 +1,22 @@
-[
-  {
-    "id": "ferrari",
-    "name": "Scuderia Ferrari",
-    "country": "Italy",
-    "founded": 1929
-  },
-  {
-    "id": "mclaren",
-    "name": "McLaren",
-    "country": "United Kingdom",
-    "founded": 1963
-  },
-  {
-    "id": "williams",
-    "name": "Williams Racing",
-    "country": "United Kingdom",
-    "founded": 1977
-  }
-]
+{
+  "teams": [
+    {
+      "id": "ferrari",
+      "name": "Scuderia Ferrari",
+      "country": "Italy",
+      "founded": 1929
+    },
+    {
+      "id": "mclaren",
+      "name": "McLaren",
+      "country": "United Kingdom",
+      "founded": 1963
+    },
+    {
+      "id": "williams",
+      "name": "Williams Racing",
+      "country": "United Kingdom",
+      "founded": 1977
+    }
+  ]
+}
