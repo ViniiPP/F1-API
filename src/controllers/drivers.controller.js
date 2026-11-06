@@ -1,7 +1,7 @@
 const { getAllDrivers } = require("../repositories/drivers.repository");
 
 // listar todos os pilotos + filtros por país e títulos mundiais com query param
-async function getDrivers(req, res) {
+async function getDrivers(req, res, next) {
     try {
         const drivers = await getAllDrivers();
         const country = req.query.country;
@@ -48,14 +48,12 @@ async function getDrivers(req, res) {
         res.json(filteredDrivers);
 
     } catch (err) {
-        res.status(500).json({
-            message: "Erro ao buscar pilotos - API"
-        });
+        next(err);
     }
 }
 
 // buscar piloto pelo ID
-async function getDriverById(req, res) {
+async function getDriverById(req, res, next) {
     try {
         const drivers = await getAllDrivers();
 
@@ -74,9 +72,7 @@ async function getDriverById(req, res) {
         res.json(driverFound);
 
     } catch (err) {
-        res.status(500).json({
-            message: "Erro ao buscar pilotos - API"
-        });
+        next(err);
     }
 }
 

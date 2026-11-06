@@ -1,7 +1,7 @@
 const { getAllTeams } = require("../repositories/teams.repository");
 
 // listar todas as equipes + filtros
-async function getTeams(req, res) {
+async function getTeams(req, res, next) {
     try {
         const teams = await getAllTeams();
         const country = req.query.country;
@@ -48,14 +48,12 @@ async function getTeams(req, res) {
         
 
     } catch(err) {
-        res.status(500).json({
-            message: "Erro ao buscar equipes - API"
-        });
+        next(err);
     }
 }
 
 // buscar equipe pelo ID
-async function getTeamById(req, res) {
+async function getTeamById(req, res, next) {
     try {
         const teams = await getAllTeams();
 
@@ -74,9 +72,7 @@ async function getTeamById(req, res) {
         res.json(teamFound);
 
     } catch (err) {
-        res.status(500).json({
-            message: "Erro ao buscar equipe - API"
-        });
+        next(err);
     }
 }
 

@@ -1,7 +1,11 @@
 const express = require('express');
 const app = express();
+
 const driversRoutes = require('./routes/drivers.routes');
 const teamsRoutes = require("./routes/teams.routes");
+
+const { notFound } = require("./middlewares/notFound.middleware");
+const { errorHandler } = require("./middlewares/errorHandler.middleware");
 
 app.get('/', (req, res) => {
     res.send("Olá F1-API")
@@ -17,8 +21,13 @@ app.get('/api/v1', (req, res) =>{
     res.json(apiInfo);
 });
 
+// rotas
 app.use("/api/v1/drivers", driversRoutes);
-
 app.use("/api/v1/teams", teamsRoutes);
+
+// middlewares
+app.use(notFound);
+app.use(errorHandler);
+
 
 module.exports = app
