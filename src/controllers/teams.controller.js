@@ -5,26 +5,66 @@ async function getTeams(req, res, next) {
     try {
         const teams = await getAllTeams();
         const country = req.query.country;
-        const founded = req.query.founded;
+        const power_unit = req.query.power_unit;
+        const base = req.query.base;
 
-        // converter ano de fundação para número
-        let foundedNumber;
-        if (founded !== undefined) {
-            foundedNumber = Number(founded);
+        const numericFields = [
+            "first_entry",
+            "world_championships",
+            "poles",
+            "fastest_laps"
+        ];
+
+        const numericFilters = {};
+
+        // converter os filtros numéricos
+        for (const field of numericFields) {
+            const value = req.query[field];
+
+            if (value === undefined) {
+                continue;
+            }
+
+            const number = Number(value);
 
             // validar se o ano é inteiro e maior que zero
-            if(!Number.isInteger(foundedNumber) || foundedNumber <= 0) {
+            const minimum = field === "first_entry" ? 1 : 0;
+
+            if (
+                typeof value !== "string" ||
+                value.trim() === "" ||
+                !Number.isSafeInteger(number) ||
+                number < minimum
+            ) {
+                const rule = minimum === 1
+                    ? "maior que zero"
+                    : "maior ou igual a zero";
+
                 return res.status(400).json({
-                    message:"Founded deve ser um ano inteiro maior que zero"
+                    message: `${field} deve ser um inteiro ${rule}`
                 });
             }
+
+            numericFilters[field] = number;
         }
 
         // remover espaços extras e tratar país vazio
-        const normalizedCountry = country ? country.trim() || undefined : undefined;
+        const normalizedCountry = typeof country === "string"
+            ? country.trim() || undefined
+            : undefined;
+
+        const normalizedPowerUnit = typeof power_unit === "string"
+            ? power_unit.trim().toLowerCase() || undefined
+            : undefined;
+
+        const normalizedBase = typeof base === "string"
+            ? base.trim().toLowerCase() || undefined
+            : undefined;
 
         // verificar se o país existe
-        const countryExists = teams.some((team) => team.country === normalizedCountry);
+        const countryExists = teams.some(
+            (team) => team.country === normalizedCountry
+        );
 
         if (normalizedCountry !== undefined && !countryExists) {
             return res.status(400).json({
@@ -32,22 +72,37 @@ async function getTeams(req, res, next) {
             });
         }
 
-         // aplicar filtros de país e ano de fundação
+        // aplicar filtros de país e estatísticas
         const filteredTeams = teams.filter((team) => {
             const matchesCountry =
                 !normalizedCountry || team.country === normalizedCountry;
 
-            const matchesFounded =
-                founded === undefined ||
-                team.founded === foundedNumber;
+            const matchesPowerUnit =
+                !normalizedPowerUnit ||
+                (typeof team.power_unit === "string" &&
+                    team.power_unit.toLowerCase() === normalizedPowerUnit);
 
-            return matchesCountry && matchesFounded;
+            const matchesBase =
+                !normalizedBase ||
+                (Array.isArray(team.base) &&
+                    team.base.some((location) =>
+                        location.toLowerCase() === normalizedBase
+                    ));
+
+            const matchesNumericFields = numericFields.every((field) =>
+                numericFilters[field] === undefined ||
+                team[field] === numericFilters[field]
+            );
+
+            return matchesCountry &&
+                matchesPowerUnit &&
+                matchesBase &&
+                matchesNumericFields;
         });
 
         res.json(filteredTeams);
-        
 
-    } catch(err) {
+    } catch (err) {
         next(err);
     }
 }

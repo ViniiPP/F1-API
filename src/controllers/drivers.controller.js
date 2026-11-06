@@ -5,22 +5,57 @@ async function getDrivers(req, res, next) {
     try {
         const drivers = await getAllDrivers();
         const country = req.query.country;
-        const worldChampionships = req.query.worldChampionships;
+        const team_id = req.query.team_id;
+
+        const numericFields = [
+            "worldChampionships",
+            "number",
+            "wins",
+            "poles",
+            "podiums",
+            "first_entry"
+        ];
+
+        const numericFilters = {};
 
         // converter títulos mundiais para número
-        let worldChampionshipsNumber;
-        if (worldChampionships !== undefined) {
-            worldChampionshipsNumber = Number(worldChampionships);
+        // validar também os demais filtros numéricos
+        for (const field of numericFields) {
+            const value = req.query[field];
 
-            if (!Number.isInteger(worldChampionshipsNumber) || worldChampionshipsNumber < 0) {
+            if (value === undefined) {
+                continue;
+            }
+
+            const number = Number(value);
+            const minimum = ["number", "first_entry"].includes(field) ? 1 : 0;
+
+            if (
+                typeof value !== "string" ||
+                value.trim() === "" ||
+                !Number.isSafeInteger(number) ||
+                number < minimum
+            ) {
+                const rule = minimum === 1
+                    ? "maior que zero"
+                    : "maior ou igual a zero";
+
                 return res.status(400).json({
-                    message: "worldChampionships deve ser um inteiro maior ou igual a zero"
+                    message: `${field} deve ser um inteiro ${rule}`
                 });
             }
+
+            numericFilters[field] = number;
         }
 
         // remover espaços extras e tratar país vazio
-        const normalizedCountry = country ? country.trim() || undefined : undefined;
+        const normalizedCountry = typeof country === "string"
+            ? country.trim() || undefined
+            : undefined;
+
+        const normalizedTeamId = typeof team_id === "string"
+            ? team_id.trim().toUpperCase() || undefined
+            : undefined;
 
         // verificar se o país informado existe nos dados
         const countryExists = drivers.some(
@@ -38,11 +73,15 @@ async function getDrivers(req, res, next) {
             const matchesCountry =
                 !normalizedCountry || driver.country === normalizedCountry;
 
-            const matchesWorldChampionships =
-                worldChampionships === undefined ||
-                driver.worldChampionships === worldChampionshipsNumber;
+            const matchesTeam =
+                !normalizedTeamId || driver.team_id === normalizedTeamId;
 
-            return matchesCountry && matchesWorldChampionships;
+            const matchesNumericFields = numericFields.every((field) =>
+                numericFilters[field] === undefined ||
+                driver[field] === numericFilters[field]
+            );
+
+            return matchesCountry && matchesTeam && matchesNumericFields;
         });
 
         res.json(filteredDrivers);
